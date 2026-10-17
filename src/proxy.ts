@@ -1,17 +1,16 @@
-import { auth } from "./auth";
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
-export const proxy = auth((request) => {
-  if (request.auth) return;
+export const proxy = auth((req) => {
+  if (req.auth) return NextResponse.next();
 
-  if (request.nextUrl.pathname.startsWith("/api/")) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const loginUrl = new URL("/login", request.nextUrl);
-  loginUrl.searchParams.set("callbackUrl", request.nextUrl.href);
-  return Response.redirect(loginUrl);
+  return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
 });
 
 export const config = {
-  matcher: ["/telemetry/:path*", "/api/telemetry", "/api/games"],
+  matcher: ["/telemetry/:path*", "/api/telemetry/:path*", "/api/games/:path*"],
 };
