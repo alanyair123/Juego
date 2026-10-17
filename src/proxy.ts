@@ -1,6 +1,6 @@
 import { auth } from "./auth";
 
-export default auth((request) => {
+export const proxy = auth((request) => {
   if (request.auth) return;
 
   if (request.nextUrl.pathname.startsWith("/api/")) {
