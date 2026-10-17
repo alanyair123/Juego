@@ -34,6 +34,31 @@ type DatabaseGameRecord = QueryResultRow & {
 
 type TotalRow = QueryResultRow & { total: string };
 
+const TOTAL_CACHE_MS = 30_000;
+let cachedTotal: { total: number; expiresAt: number } | undefined;
+let totalQuery: Promise<number> | undefined;
+
+async function getTotal(pool: ReturnType<typeof getPool>): Promise<number> {
+  if (cachedTotal && cachedTotal.expiresAt > Date.now()) {
+    return cachedTotal.total;
+  }
+
+  if (!totalQuery) {
+    totalQuery = pool
+      .query<TotalRow>("SELECT COUNT(*) AS total FROM game_records")
+      .then((result) => {
+        const total = Number(result.rows[0].total);
+        cachedTotal = { total, expiresAt: Date.now() + TOTAL_CACHE_MS };
+        return total;
+      })
+      .finally(() => {
+        totalQuery = undefined;
+      });
+  }
+
+  return totalQuery;
+}
+
 export async function getTelemetryPage({
   page,
   pageSize,
@@ -41,10 +66,10 @@ export async function getTelemetryPage({
   page: number;
   pageSize: number;
 }): Promise<TelemetryPage> {
-  const startedAt = performance.now();
   const offset = Math.min((page - 1) * pageSize, Number.MAX_SAFE_INTEGER);
   const pool = getPool();
-  const [records, count] = await Promise.all([
+  const queryStartedAt = performance.now();
+  const [records, total] = await Promise.all([
     pool.query<DatabaseGameRecord>(
       `SELECT id, player_id, level_reached, enemies_killed, time_seconds, inventory, created_at
        FROM game_records
@@ -52,10 +77,10 @@ export async function getTelemetryPage({
        LIMIT $1 OFFSET $2`,
       [pageSize, offset],
     ),
-    pool.query<TotalRow>("SELECT COUNT(*) AS total FROM game_records"),
+    getTotal(pool),
   ]);
+  const queryMs = Math.round(performance.now() - queryStartedAt);
 
-  const total = Number(count.rows[0].total);
   return {
     rows: records.rows.map((row) => ({
       id: row.id,
@@ -70,6 +95,6 @@ export async function getTelemetryPage({
     page,
     pageSize,
     totalPages: Math.ceil(total / pageSize),
-    queryMs: Math.round(performance.now() - startedAt),
+    queryMs,
   };
 }

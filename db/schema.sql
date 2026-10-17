@@ -11,5 +11,8 @@ CREATE TABLE IF NOT EXISTS game_records (
 CREATE INDEX IF NOT EXISTS game_records_created_at_idx
   ON game_records (created_at DESC);
 
+CREATE INDEX IF NOT EXISTS game_records_created_at_id_idx
+  ON game_records (created_at DESC, id DESC);
+
 CREATE INDEX IF NOT EXISTS game_records_player_id_idx
   ON game_records (player_id);

@@ -1,18 +1,18 @@
 import { Pool } from "pg";
 
-let pool: Pool | undefined;
+const globalForPg = globalThis as typeof globalThis & { pgPool?: Pool };
 
 export function getPool(): Pool {
-  if (pool) return pool;
+  if (globalForPg.pgPool) return globalForPg.pgPool;
 
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is required to use the game database.");
   }
 
-  pool = new Pool({
+  globalForPg.pgPool = new Pool({
     connectionString,
     ssl: { rejectUnauthorized: false },
   });
-  return pool;
+  return globalForPg.pgPool;
 }
