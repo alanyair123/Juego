@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
-export const proxy = auth((req) => {
+export default auth((req) => {
   if (req.auth) return NextResponse.next();
 
   if (req.nextUrl.pathname.startsWith("/api/")) {
