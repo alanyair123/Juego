@@ -1,150 +1,213 @@
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
   display: flex;
-  flex: 1;
+  min-height: 100vh;
   flex-direction: column;
+  padding: 0 max(24px, calc((100vw - 1120px) / 2));
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 73% 44%, #183327 0%, transparent 34%),
+    #0b1210;
+  color: #edf5ed;
+}
+
+.nav {
+  display: flex;
+  height: 84px;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
-}
-
-.main {
-  display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
   justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  border-bottom: 1px solid #22332b;
 }
 
-.intro {
+.wordmark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #4b715b;
+  border-radius: 10px;
+  color: #e8f6e9;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.wordmark span {
+  margin-left: 2px;
+  color: #8de4bd;
+}
+
+.navLinks {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
   gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
+  color: #b2c1b7;
   font-size: 14px;
 }
 
-.ctas a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+.navLinks a:hover,
+.loginLink:hover {
+  color: #fff;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
-}
-
-a.secondary {
-  border-color: var(--button-secondary-border);
-}
-
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
-}
-
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
-  }
-}
-
-.code {
-  font-family: var(--font-geist-mono);
-  font-size: 0.9em;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  padding: 0.1em 0.4em;
+.loginLink {
+  padding: 9px 14px;
+  border: 1px solid #3a5145;
   border-radius: 6px;
+  background: transparent;
+  color: #d9e9de;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  min-height: 690px;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  color: #91ddb0;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+.hero h1 {
+  margin-top: 22px;
+  font-size: clamp(44px, 7vw, 78px);
+  line-height: 1.03;
+  letter-spacing: -0.07em;
+}
+
+.hero h1 span {
+  color: #8de4bd;
+}
+
+.description {
+  max-width: 500px;
+  margin-top: 22px;
+  color: #a5b5aa;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.welcome {
+  margin-top: 14px;
+  color: #92d6ac;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.primaryButton,
+.disabledButton {
+  padding: 14px 20px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.primaryButton {
+  background: #90e0b8;
+  color: #102017;
+}
+
+.disabledButton {
+  border-color: #35463d;
+  background: #18231d;
+  color: #718077;
+  cursor: not-allowed;
+}
+
+.gridDecoration {
+  position: absolute;
+  top: 50%;
+  right: 4%;
+  display: grid;
+  width: 340px;
+  height: 340px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  transform: translateY(-50%) rotate(-7deg);
+  opacity: 0.68;
+}
+
+.gridDecoration span {
+  display: grid;
+  place-items: center;
+  border: 1px solid #34513f;
+  color: #8de4bd;
+  font-size: 34px;
+}
+
+.gridDecoration span:nth-child(2),
+.gridDecoration span:nth-child(5),
+.gridDecoration span:nth-child(9) {
+  background: #20372a;
+}
+
+.gridDecoration span:nth-child(1),
+.gridDecoration span:nth-child(5) {
+  color: #e7bb5e;
+}
+
+.footer {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid #22332b;
+  color: #718077;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 0 20px;
+  }
+
+  .hero {
+    min-height: 660px;
+  }
+
+  .gridDecoration {
+    top: auto;
+    right: -20px;
+    bottom: 4%;
+    width: 210px;
+    height: 210px;
+    opacity: 0.3;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding: 14px 0;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 440px) {
+  .navLinks {
+    gap: 12px;
+    font-size: 12px;
+  }
+
+  .loginLink {
+    padding: 8px;
+  }
 }

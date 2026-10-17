@@ -1,69 +1,80 @@
-import Image from "next/image";
+import { auth, signOut } from "@/auth";
+import Link from "next/link";
+import { connection } from "next/server";
 import styles from "./page.module.css";
 
-export default function Home() {
+export const instant = false;
+
+export default async function Home() {
+  await connection();
+  const session = await auth();
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+    <main className={styles.page}>
+      <nav className={styles.nav}>
+        <Link className={styles.wordmark} href="/">
+          R<span>W</span>
+        </Link>
+        <div className={styles.navLinks}>
+          <Link href="/telemetry">Telemetría</Link>
+          {session ? (
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/" });
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+              <button className={styles.loginLink} type="submit">
+                Cerrar sesión
+              </button>
+            </form>
+          ) : (
+            <Link className={styles.loginLink} href="/login">
+              Iniciar sesión
+            </Link>
+          )}
+        </div>
+      </nav>
+      <section className={styles.hero}>
+        <p className={styles.eyebrow}>UN ROGUELIKE DE EXPLORACIÓN POR TURNOS</p>
+        <h1>
+          RogueWeb:
+          <br />
+          <span>Echoes of the Grid</span>
+        </h1>
+        <p className={styles.description}>
+          Explora ruinas generadas por semilla, lucha contra los ecos y alcanza el
+          siguiente piso. Cada movimiento cuenta.
+        </p>
+        {session && (
+          <p className={styles.welcome}>
+            Hola, {session.user.name ?? session.user.email}. Tus partidas se guardarán.
           </p>
+        )}
+        <div className={styles.actions}>
+          <Link className={styles.primaryButton} href="/play">
+            Jugar en solitario
+          </Link>
+          <button className={styles.disabledButton} disabled>
+            Multijugador (próximamente)
+          </button>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className={styles.gridDecoration} aria-hidden="true">
+          <span>▦</span>
+          <span>◇</span>
+          <span>·</span>
+          <span>·</span>
+          <span>▦</span>
+          <span>·</span>
+          <span>·</span>
+          <span>·</span>
+          <span>◇</span>
         </div>
-      </main>
-    </div>
+      </section>
+      <footer className={styles.footer}>
+        <span>GENERACIÓN PROCEDURAL · COMBATE TÁCTICO · PERMADEATH</span>
+        <span>{session ? "Sesión activa" : "Las partidas se pueden guardar al iniciar sesión"}</span>
+      </footer>
+    </main>
   );
 }

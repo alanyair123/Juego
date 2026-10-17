@@ -14,6 +14,11 @@ export const gameRecordSchema = z.object({
   inventory: z.array(inventoryItemSchema),
 });
 
+export const telemetryQuerySchema = z.object({
+  page: z.coerce.number().int().safe().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+});
+
 const directionSchema = z.union([z.literal(-1), z.literal(0), z.literal(1)]);
 
 export const moveInputSchema = z

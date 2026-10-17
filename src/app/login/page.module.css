@@ -1,0 +1,62 @@
+.page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 0%, #183127 0%, #0b1210 60%);
+  color: #edf5ed;
+}
+
+.card {
+  width: min(100%, 420px);
+  padding: 34px;
+  border: 1px solid #30463d;
+  border-radius: 14px;
+  background: #121f1a;
+}
+
+.backLink {
+  color: #a8c1b1;
+  font-size: 14px;
+}
+
+.eyebrow {
+  margin-top: 34px;
+  color: #8bd8ad;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+.card h1 {
+  margin: 8px 0;
+  font-size: 32px;
+}
+
+.description {
+  margin-bottom: 22px;
+  color: #a7b8ad;
+}
+
+.card form + form {
+  margin-top: 10px;
+}
+
+.googleButton,
+.githubButton,
+.secondaryButton {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid #465b50;
+  border-radius: 7px;
+  background: #eff7f0;
+  color: #111a15;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.githubButton,
+.secondaryButton {
+  background: #26372f;
+  color: #eff7f0;
+}

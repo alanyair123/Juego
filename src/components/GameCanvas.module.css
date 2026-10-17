@@ -1,0 +1,124 @@
+.game {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+}
+
+.canvasFrame {
+  position: relative;
+  width: 100%;
+  height: min(68vh, 680px);
+  min-height: 320px;
+  overflow: hidden;
+  border: 1px solid #30463d;
+  border-radius: 14px;
+  background: #09110f;
+  box-shadow: 0 24px 80px #0008;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gameOver {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #06100edb;
+}
+
+.gameOverCard {
+  width: min(100%, 370px);
+  padding: 30px;
+  border: 1px solid #385247;
+  border-radius: 12px;
+  background: #14221d;
+  color: #edf5ed;
+  text-align: center;
+}
+
+.gameOverCard h2 {
+  margin: 5px 0 18px;
+  font-size: 34px;
+}
+
+.gameOverCard p {
+  margin: 7px 0;
+  color: #bbc9bf;
+}
+
+.gameOverCard .eyebrow {
+  color: #83d8ad;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.primaryButton {
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: #90e0b8;
+  color: #0b1711;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 66px);
+  grid-template-rows: repeat(2, 62px);
+  justify-content: center;
+  gap: 8px;
+  margin: 18px auto 8px;
+  touch-action: none;
+}
+
+.dpad button {
+  border: 1px solid #405b4e;
+  border-radius: 12px;
+  background: #1c3027;
+  color: #edfff3;
+  font-size: 27px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dpad button:first-child {
+  grid-column: 2;
+}
+
+.dpad button:nth-child(2) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.dpad button:nth-child(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.dpad button:nth-child(4) {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.helpText {
+  margin-top: 13px;
+  color: #91a59a;
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .canvasFrame {
+    height: 54vh;
+    min-height: 300px;
+  }
+}
