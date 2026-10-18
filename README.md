@@ -19,6 +19,19 @@ Estos comandos no necesitan variables de entorno ni se conectan a la base de
 datos. El motor puro y determinista está en `src/game/`; sus pruebas Vitest están
 en `src/game/__tests__/`.
 
+## Pruebas E2E
+
+Instala Chromium una vez y ejecuta:
+
+```bash
+npx playwright install chromium
+npm run e2e
+```
+
+Playwright inicia el servidor de Socket.IO y la app Next.js. Sin `DATABASE_URL`
+se omite el caso autenticado que consulta telemetría; CI inicia y prepara
+PostgreSQL para ejecutar también ese caso.
+
 ## Probar el modo multijugador local
 
 Abre dos terminales en la carpeta del proyecto:
@@ -55,6 +68,6 @@ se guardan al morir.
 7. Ejecuta `npm run dev`, visita `http://localhost:3000` y elige **Iniciar
    sesión**. Telemetría y guardado de partidas requieren sesión iniciada.
 
-Los scripts de base de datos cargan `.env.local` al ejecutarse. El resto de la
-aplicación crea el pool PostgreSQL de forma perezosa y no conecta durante el
-build, las pruebas ni al importar los módulos.
+Los scripts de base de datos cargan `.env.local` al ejecutarse. El pool
+PostgreSQL se crea de forma perezosa; el build y las pruebas unitarias no
+conectan a la base de datos.

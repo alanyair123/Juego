@@ -7,6 +7,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: rogueweb_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d rogueweb_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,3 +31,26 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - run: npm run db:migrate
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/rogueweb_test
+      - run: npm run db:seed
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/rogueweb_test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/rogueweb_test
+          AUTH_SECRET: rogueweb-playwright-auth-secret-2026-10-only
+          AUTH_TRUST_HOST: "true"
+          NEXT_PUBLIC_SOCKET_URL: http://localhost:4000
+          CORS_ORIGIN: http://localhost:3000
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
