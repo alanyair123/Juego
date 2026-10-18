@@ -19,6 +19,26 @@ Estos comandos no necesitan variables de entorno ni se conectan a la base de
 datos. El motor puro y determinista está en `src/game/`; sus pruebas Vitest están
 en `src/game/__tests__/`.
 
+## Probar el modo multijugador local
+
+Abre dos terminales en la carpeta del proyecto:
+
+```bash
+npm run server:dev
+```
+
+```bash
+npm run dev
+```
+
+Visita `http://localhost:3000/lobby` en dos pestañas, usa un apodo distinto en
+cada una, crea una sala, únete desde la otra pestaña y marca a ambos jugadores
+como listos. Las partidas usan la misma semilla y el servidor autoriza los
+movimientos. `NEXT_PUBLIC_SOCKET_URL` permite cambiar la URL del servidor
+(por defecto `http://localhost:4000`); `CORS_ORIGIN` acepta varios orígenes
+separados por comas. Sin `DATABASE_URL`, las partidas siguen funcionando y no
+se guardan al morir.
+
 ## Configurar la base de datos y OAuth
 
 1. Copia `.env.example` a `.env.local`.

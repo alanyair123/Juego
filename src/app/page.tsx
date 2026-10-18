@@ -55,9 +55,9 @@ export default async function Home() {
           <Link className={styles.primaryButton} href="/play">
             Jugar en solitario
           </Link>
-          <button className={styles.disabledButton} disabled>
-            Multijugador (próximamente)
-          </button>
+          <Link className={styles.secondaryButton} href="/lobby">
+            Multijugador
+          </Link>
         </div>
         <div className={styles.gridDecoration} aria-hidden="true">
           <span>▦</span>

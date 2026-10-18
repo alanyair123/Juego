@@ -7,6 +7,9 @@ import styles from "./GameCanvas.module.css";
 
 type GameCanvasProps = {
   loggedIn: boolean;
+  serverMode?: boolean;
+  serverState?: GameState | null;
+  onMove?: (direction: MoveInput) => void;
 };
 
 type CanvasSize = {
@@ -30,8 +33,16 @@ const DIRECTIONS: Record<string, MoveInput> = {
   D: { dx: 1, dy: 0 },
 };
 
-export default function GameCanvas({ loggedIn }: GameCanvasProps) {
-  const [state, setState] = useState(() => createGame(makeSeed()));
+export default function GameCanvas({
+  loggedIn,
+  serverMode = false,
+  serverState,
+  onMove,
+}: GameCanvasProps) {
+  const [localState, setLocalState] = useState<GameState | null>(() =>
+    serverMode ? null : createGame(makeSeed()),
+  );
+  const state = serverMode ? serverState ?? null : localState;
   const [canvasSize, setCanvasSize] = useState<CanvasSize>({
     width: 0,
     height: 0,
@@ -40,16 +51,23 @@ export default function GameCanvas({ loggedIn }: GameCanvasProps) {
   const [showDpad, setShowDpad] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const stateStatus = state?.status;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const startedAt = useRef(0);
   const saveStarted = useRef(false);
 
   const move = useCallback((direction: MoveInput) => {
-    setState((current) => movePlayer(current, direction.dx, direction.dy));
-  }, []);
+    if (serverMode) {
+      onMove?.(direction);
+      return;
+    }
+    setLocalState((current) =>
+      current ? movePlayer(current, direction.dx, direction.dy) : current,
+    );
+  }, [onMove, serverMode]);
 
   const startNewGame = useCallback(() => {
-    setState(createGame(makeSeed()));
+    setLocalState(createGame(makeSeed()));
     setSavedMessage("");
     startedAt.current = Date.now();
     setElapsedSeconds(0);
@@ -94,16 +112,16 @@ export default function GameCanvas({ loggedIn }: GameCanvasProps) {
   }, [move]);
 
   useEffect(() => {
-    if (state.status !== "playing") return;
+    if (serverMode || stateStatus !== "playing") return;
     startedAt.current = Date.now();
     const timer = window.setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startedAt.current) / 1000));
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [state.status]);
+  }, [serverMode, stateStatus]);
 
   useEffect(() => {
-    if (state.status !== "dead") return;
+    if (serverMode || !state || state.status !== "dead") return;
     if (!loggedIn) return;
     if (saveStarted.current) return;
     saveStarted.current = true;
@@ -131,12 +149,12 @@ export default function GameCanvas({ loggedIn }: GameCanvasProps) {
       }
     };
     void saveRecord();
-  }, [elapsedSeconds, loggedIn, state]);
+  }, [elapsedSeconds, loggedIn, serverMode, state]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    if (!canvas || !context || canvasSize.width === 0 || canvasSize.height === 0) return;
+    if (!canvas || !context || !state || canvasSize.width === 0 || canvasSize.height === 0) return;
 
     const frame = window.requestAnimationFrame(() => {
       drawGame(context, state, canvasSize);
@@ -156,29 +174,45 @@ export default function GameCanvas({ loggedIn }: GameCanvasProps) {
           ref={canvasRef}
           className={styles.canvas}
           data-testid="game-canvas"
-          data-player-x={state.player.x}
-          data-player-y={state.player.y}
-          aria-label={`Mapa del juego, jugador en ${state.player.x}, ${state.player.y}`}
+          data-player-x={state?.player.x ?? ""}
+          data-player-y={state?.player.y ?? ""}
+          aria-label={state
+            ? `Mapa del juego, jugador en ${state.player.x}, ${state.player.y}`
+            : "Mapa de la partida multijugador"}
         />
-        {state.status === "dead" && (
+        {!state && serverMode && (
+          <div className={styles.gameOver}>
+            <div className={styles.gameOverCard}>
+              <p className={styles.eyebrow}>PARTIDA MULTIJUGADOR</p>
+              <h2>Conectando…</h2>
+              <p>Esperando el estado de la sala.</p>
+            </div>
+          </div>
+        )}
+        {state?.status === "dead" && (
           <div className={styles.gameOver} role="dialog" aria-modal="true">
             <div className={styles.gameOverCard}>
               <p className={styles.eyebrow}>FIN DE LA PARTIDA</p>
               <h2>Game Over</h2>
               <p>Nivel alcanzado: {state.player.level}</p>
               <p>Enemigos eliminados: {state.enemiesKilled}</p>
-              <p>Tiempo: {formatTime(elapsedSeconds)}</p>
-              <p aria-live="polite">
-                {savedMessage || (!loggedIn ? "Inicia sesión para guardar tus partidas." : "")}
-              </p>
-              <button className={styles.primaryButton} onClick={startNewGame}>
-                Nueva partida
-              </button>
+              {!serverMode && <p>Tiempo: {formatTime(elapsedSeconds)}</p>}
+              {!serverMode && (
+                <>
+                  <p aria-live="polite">
+                    {savedMessage || (!loggedIn ? "Inicia sesión para guardar tus partidas." : "")}
+                  </p>
+                  <button className={styles.primaryButton} onClick={startNewGame}>
+                    Nueva partida
+                  </button>
+                </>
+              )}
+              {serverMode && <p>Has sido eliminado. Puedes seguir viendo el marcador.</p>}
             </div>
           </div>
         )}
       </div>
-      {showDpad && state.status === "playing" && (
+      {showDpad && state?.status === "playing" && (
         <div className={styles.dpad} aria-label="Controles táctiles">
           <button
             aria-label="Mover arriba"

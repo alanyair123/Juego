@@ -108,7 +108,7 @@
 }
 
 .primaryButton,
-.disabledButton {
+.secondaryButton {
   padding: 14px 20px;
   border: 1px solid transparent;
   border-radius: 7px;
@@ -122,11 +122,10 @@
   color: #102017;
 }
 
-.disabledButton {
+.secondaryButton {
   border-color: #35463d;
   background: #18231d;
-  color: #718077;
-  cursor: not-allowed;
+  color: #d9e9de;
 }
 
 .gridDecoration {
