@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { loadEnvConfig } from "@next/env";
 import type { PoolClient } from "pg";
 import { createRng } from "../src/game/rng";
@@ -24,7 +25,9 @@ type SeedRecord = {
 };
 
 async function seed(): Promise<void> {
-  loadEnvConfig(process.cwd());
+  if (!process.env.DATABASE_URL && existsSync(".env.local")) {
+    loadEnvConfig(process.cwd());
+  }
   const client = await getPool().connect();
 
   try {

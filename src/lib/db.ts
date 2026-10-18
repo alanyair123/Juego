@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import { getDatabaseSsl } from "./db-ssl";
 
 const globalForPg = globalThis as typeof globalThis & { pgPool?: Pool };
 
@@ -12,7 +13,7 @@ export function getPool(): Pool {
 
   globalForPg.pgPool = new Pool({
     connectionString,
-    ssl: { rejectUnauthorized: false },
+    ssl: getDatabaseSsl(connectionString),
   });
   return globalForPg.pgPool;
 }
