@@ -5,7 +5,7 @@ import Link from "next/link";
 import GameCanvas from "@/components/GameCanvas";
 import { getGameSocket } from "@/game/socket-client";
 import type { GameState } from "@/game/engine";
-import type { ScoreboardEntry } from "@/game/lobby";
+import type { OtherPlayer, ScoreboardEntry } from "@/game/lobby";
 import type { MoveInput } from "@/game/schemas";
 import styles from "./MultiGameClient.module.css";
 
@@ -13,13 +13,19 @@ export default function MultiGameClient() {
   const socket = getGameSocket();
   const [state, setState] = useState<GameState | null>(null);
   const [scoreboard, setScoreboard] = useState<ScoreboardEntry[]>([]);
+  const [others, setOthers] = useState<OtherPlayer[]>([]);
   const [seed, setSeed] = useState<number | null>(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const onState = (update: { state: GameState; scoreboard: ScoreboardEntry[] }) => {
+    const onState = (update: {
+      state: GameState;
+      scoreboard: ScoreboardEntry[];
+      others: OtherPlayer[];
+    }) => {
       setState(update.state);
       setScoreboard(update.scoreboard);
+      setOthers(update.others);
     };
     const onStarted = ({ seed: gameSeed }: { seed: number }) => setSeed(gameSeed);
     const onOver = ({ scoreboard: finalScores }: { scoreboard: ScoreboardEntry[] }) =>
@@ -64,6 +70,7 @@ export default function MultiGameClient() {
           loggedIn={false}
           serverMode
           serverState={state}
+          others={others}
           onMove={sendMove}
         />
         <aside className={styles.scoreCard}>

@@ -6,6 +6,7 @@ import {
   applyMove,
   canStart,
   createRoom,
+  getOtherPlayers,
   getScoreboard,
   isRoomFinished,
   joinRoom,
@@ -112,7 +113,11 @@ function emitGameStates(room: LobbyRoom): void {
   const scoreboard = getScoreboard(room);
   for (const player of room.players) {
     if (player.state) {
-      io.to(player.id).emit("game:state", { state: player.state, scoreboard });
+      io.to(player.id).emit("game:state", {
+        state: player.state,
+        scoreboard,
+        others: getOtherPlayers(room, player.id),
+      });
     }
   }
 }
@@ -310,7 +315,11 @@ io.on("connection", (socket) => {
       sendError(socket, "No tienes una partida activa.");
       return;
     }
-    socket.emit("game:state", { state: player.state, scoreboard: getScoreboard(room) });
+    socket.emit("game:state", {
+      state: player.state,
+      scoreboard: getScoreboard(room),
+      others: getOtherPlayers(room, player.id),
+    });
     if (isRoomFinished(room)) {
       socket.emit("game:over", { scoreboard: getScoreboard(room) });
     }

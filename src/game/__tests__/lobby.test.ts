@@ -4,6 +4,7 @@ import {
   applyMove,
   canStart,
   createRoom,
+  getOtherPlayers,
   getScoreboard,
   isRoomFinished,
   joinRoom,
@@ -125,6 +126,42 @@ describe("lobby room logic", () => {
       "player-2",
       "player-3",
     ]);
+  });
+
+  it("returns only living other players on the current player's floor", () => {
+    const room = startRoom(readyRoom(roomWithPlayers(4)), 77);
+    const currentPlayerId = "player-1";
+    const currentFloor = room.players[0].state?.floor;
+    const preparedRoom: LobbyRoom = {
+      ...room,
+      players: room.players.map((player, index) => {
+        const state = createGame(77);
+        if (index === 1) {
+          state.player.x = 12;
+          state.player.y = 8;
+        } else if (index === 2) {
+          state.floor = (currentFloor ?? 1) + 1;
+        } else if (index === 3) {
+          state.status = "dead";
+        }
+        return {
+          ...player,
+          status: index === 3 ? "dead" : player.status,
+          state,
+        };
+      }),
+    };
+
+    expect(getOtherPlayers(preparedRoom, currentPlayerId)).toEqual([
+      {
+        nickname: "Player 2",
+        x: 12,
+        y: 8,
+        floor: currentFloor,
+        status: "playing",
+      },
+    ]);
+    expect(getOtherPlayers(preparedRoom, "unknown-player")).toEqual([]);
   });
 
   it("reports a room finished only when every player is dead", () => {

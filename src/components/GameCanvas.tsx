@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { createGame, movePlayer, type GameState } from "@/game/engine";
+import type { OtherPlayer } from "@/game/lobby";
 import type { MoveInput } from "@/game/schemas";
 import styles from "./GameCanvas.module.css";
 
@@ -9,6 +10,7 @@ type GameCanvasProps = {
   loggedIn: boolean;
   serverMode?: boolean;
   serverState?: GameState | null;
+  others?: OtherPlayer[];
   onMove?: (direction: MoveInput) => void;
 };
 
@@ -37,6 +39,7 @@ export default function GameCanvas({
   loggedIn,
   serverMode = false,
   serverState,
+  others = [],
   onMove,
 }: GameCanvasProps) {
   const [localState, setLocalState] = useState<GameState | null>(() =>
@@ -157,10 +160,10 @@ export default function GameCanvas({
     if (!canvas || !context || !state || canvasSize.width === 0 || canvasSize.height === 0) return;
 
     const frame = window.requestAnimationFrame(() => {
-      drawGame(context, state, canvasSize);
+      drawGame(context, state, canvasSize, serverMode ? others : []);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [canvasSize, state]);
+  }, [canvasSize, others, serverMode, state]);
 
   const handlePointer = (event: PointerEvent<HTMLButtonElement>, direction: MoveInput) => {
     event.preventDefault();
@@ -259,6 +262,7 @@ function drawGame(
   context: CanvasRenderingContext2D,
   state: GameState,
   size: CanvasSize,
+  others: OtherPlayer[],
 ): void {
   const { width, height, ratio } = size;
   context.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -307,7 +311,39 @@ function drawGame(
   for (const enemy of state.enemies) {
     drawMarker(context, enemy, cameraX, cameraY, tileSize, hudHeight, "#ef665d", "●");
   }
+  for (const other of others) {
+    if (other.floor === state.floor) {
+      drawOtherPlayer(context, other, cameraX, cameraY, tileSize, hudHeight);
+    }
+  }
   drawMarker(context, state.player, cameraX, cameraY, tileSize, hudHeight, "#8de4bd", "●");
+}
+
+function drawOtherPlayer(
+  context: CanvasRenderingContext2D,
+  player: OtherPlayer,
+  cameraX: number,
+  cameraY: number,
+  tileSize: number,
+  hudHeight: number,
+): void {
+  const x = (player.x - cameraX) * tileSize;
+  const y = hudHeight + (player.y - cameraY) * tileSize;
+
+  context.fillStyle = "#f2a65a";
+  context.font = "10px monospace";
+  context.textAlign = "center";
+  context.textBaseline = "bottom";
+  context.fillText(player.nickname, x + tileSize / 2, y + tileSize * 0.48);
+  const markerSize = Math.max(7, tileSize * 0.48);
+  context.fillRect(
+    x + (tileSize - markerSize) / 2,
+    y + tileSize * 0.52,
+    markerSize,
+    markerSize,
+  );
+  context.textAlign = "left";
+  context.textBaseline = "alphabetic";
 }
 
 function drawMarker(

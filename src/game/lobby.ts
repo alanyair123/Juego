@@ -32,6 +32,14 @@ export type ScoreboardEntry = {
   enemiesKilled: number;
 };
 
+export type OtherPlayer = {
+  nickname: string;
+  x: number;
+  y: number;
+  floor: number;
+  status: "playing";
+};
+
 export function createRoom(id: string, name: string): LobbyRoom {
   return {
     id,
@@ -129,6 +137,30 @@ export function getScoreboard(room: LobbyRoom): ScoreboardEntry[] {
         second.enemiesKilled - first.enemiesKilled ||
         first.nickname.localeCompare(second.nickname),
     );
+}
+
+export function getOtherPlayers(room: LobbyRoom, playerId: string): OtherPlayer[] {
+  const currentPlayer = room.players.find((player) => player.id === playerId);
+  if (!currentPlayer?.state) return [];
+
+  return room.players.flatMap((player) => {
+    if (
+      player.id === playerId ||
+      player.status !== "playing" ||
+      player.state?.status !== "playing" ||
+      player.state.floor !== currentPlayer.state?.floor
+    ) {
+      return [];
+    }
+
+    return [{
+      nickname: player.nickname,
+      x: player.state.player.x,
+      y: player.state.player.y,
+      floor: player.state.floor,
+      status: player.status,
+    }];
+  });
 }
 
 export function isRoomFinished(room: LobbyRoom): boolean {
