@@ -6,7 +6,7 @@ import {
   applyMove,
   canStart,
   createRoom,
-  getOtherPlayers,
+  getOthers,
   getScoreboard,
   isRoomFinished,
   joinRoom,
@@ -116,7 +116,7 @@ function emitGameStates(room: LobbyRoom): void {
       io.to(player.id).emit("game:state", {
         state: player.state,
         scoreboard,
-        others: getOtherPlayers(room, player.id),
+        others: getOthers(room, player.id),
       });
     }
   }
@@ -318,7 +318,7 @@ io.on("connection", (socket) => {
     socket.emit("game:state", {
       state: player.state,
       scoreboard: getScoreboard(room),
-      others: getOtherPlayers(room, player.id),
+      others: getOthers(room, player.id),
     });
     if (isRoomFinished(room)) {
       socket.emit("game:over", { scoreboard: getScoreboard(room) });

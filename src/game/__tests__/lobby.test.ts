@@ -4,7 +4,7 @@ import {
   applyMove,
   canStart,
   createRoom,
-  getOtherPlayers,
+  getOthers,
   getScoreboard,
   isRoomFinished,
   joinRoom,
@@ -128,10 +128,9 @@ describe("lobby room logic", () => {
     ]);
   });
 
-  it("returns only living other players on the current player's floor", () => {
+  it("returns living other players without exposing private state", () => {
     const room = startRoom(readyRoom(roomWithPlayers(4)), 77);
     const currentPlayerId = "player-1";
-    const currentFloor = room.players[0].state?.floor;
     const preparedRoom: LobbyRoom = {
       ...room,
       players: room.players.map((player, index) => {
@@ -139,29 +138,52 @@ describe("lobby room logic", () => {
         if (index === 1) {
           state.player.x = 12;
           state.player.y = 8;
-        } else if (index === 2) {
-          state.floor = (currentFloor ?? 1) + 1;
-        } else if (index === 3) {
+        } else if (index >= 2) {
           state.status = "dead";
         }
         return {
           ...player,
-          status: index === 3 ? "dead" : player.status,
+          status: index >= 2 ? "dead" : player.status,
           state,
         };
       }),
     };
 
-    expect(getOtherPlayers(preparedRoom, currentPlayerId)).toEqual([
+    expect(getOthers(preparedRoom, currentPlayerId)).toEqual([
       {
         nickname: "Player 2",
         x: 12,
         y: 8,
-        floor: currentFloor,
-        status: "playing",
+        floor: 1,
       },
     ]);
-    expect(getOtherPlayers(preparedRoom, "unknown-player")).toEqual([]);
+    expect(getOthers(preparedRoom, "unknown-player")).toEqual([]);
+  });
+
+  it("includes living players on other floors", () => {
+    const room = startRoom(readyRoom(roomWithPlayers(3)), 77);
+    const preparedRoom: LobbyRoom = {
+      ...room,
+      players: room.players.map((player, index) => {
+        const state = createGame(77);
+        if (index === 1) {
+          state.floor = 2;
+          state.player.x = 12;
+          state.player.y = 8;
+        }
+        if (index === 2) {
+          state.floor = 3;
+          state.player.x = 4;
+          state.player.y = 5;
+        }
+        return { ...player, state };
+      }),
+    };
+
+    expect(getOthers(preparedRoom, "player-1")).toEqual([
+      { nickname: "Player 2", x: 12, y: 8, floor: 2 },
+      { nickname: "Player 3", x: 4, y: 5, floor: 3 },
+    ]);
   });
 
   it("reports a room finished only when every player is dead", () => {

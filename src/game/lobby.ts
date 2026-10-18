@@ -37,7 +37,6 @@ export type OtherPlayer = {
   x: number;
   y: number;
   floor: number;
-  status: "playing";
 };
 
 export function createRoom(id: string, name: string): LobbyRoom {
@@ -139,7 +138,7 @@ export function getScoreboard(room: LobbyRoom): ScoreboardEntry[] {
     );
 }
 
-export function getOtherPlayers(room: LobbyRoom, playerId: string): OtherPlayer[] {
+export function getOthers(room: LobbyRoom, playerId: string): OtherPlayer[] {
   const currentPlayer = room.players.find((player) => player.id === playerId);
   if (!currentPlayer?.state) return [];
 
@@ -147,19 +146,18 @@ export function getOtherPlayers(room: LobbyRoom, playerId: string): OtherPlayer[
     if (
       player.id === playerId ||
       player.status !== "playing" ||
-      player.state?.status !== "playing" ||
-      player.state.floor !== currentPlayer.state?.floor
+      !player.state ||
+      player.state.status !== "playing"
     ) {
       return [];
     }
 
-    return [{
+    return {
       nickname: player.nickname,
       x: player.state.player.x,
       y: player.state.player.y,
       floor: player.state.floor,
-      status: player.status,
-    }];
+    };
   });
 }
 

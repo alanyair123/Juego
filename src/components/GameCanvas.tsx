@@ -312,8 +312,15 @@ function drawGame(
     drawMarker(context, enemy, cameraX, cameraY, tileSize, hudHeight, "#ef665d", "●");
   }
   for (const other of others) {
-    if (other.floor === state.floor) {
-      drawOtherPlayer(context, other, cameraX, cameraY, tileSize, hudHeight);
+    const inCameraView =
+      other.x >= cameraX &&
+      other.x < cameraX + columns &&
+      other.y >= cameraY &&
+      other.y < cameraY + rows &&
+      other.x < state.map.width &&
+      other.y < state.map.height;
+    if (inCameraView) {
+      drawOtherPlayer(context, other, cameraX, cameraY, tileSize, hudHeight, other.floor !== state.floor);
     }
   }
   drawMarker(context, state.player, cameraX, cameraY, tileSize, hudHeight, "#8de4bd", "●");
@@ -326,24 +333,32 @@ function drawOtherPlayer(
   cameraY: number,
   tileSize: number,
   hudHeight: number,
+  otherFloor: boolean,
 ): void {
   const x = (player.x - cameraX) * tileSize;
   const y = hudHeight + (player.y - cameraY) * tileSize;
 
+  context.save();
+  if (otherFloor) context.globalAlpha = 0.4;
   context.fillStyle = "#f2a65a";
   context.font = "10px monospace";
   context.textAlign = "center";
   context.textBaseline = "bottom";
-  context.fillText(player.nickname, x + tileSize / 2, y + tileSize * 0.48);
-  const markerSize = Math.max(7, tileSize * 0.48);
-  context.fillRect(
-    x + (tileSize - markerSize) / 2,
-    y + tileSize * 0.52,
-    markerSize,
-    markerSize,
+  context.fillText(
+    otherFloor ? `${player.nickname} · P${player.floor}` : player.nickname,
+    x + tileSize / 2,
+    y + tileSize * 0.3,
   );
-  context.textAlign = "left";
-  context.textBaseline = "alphabetic";
+  context.beginPath();
+  context.arc(
+    x + tileSize / 2,
+    y + tileSize * 0.68,
+    Math.max(4, tileSize * 0.24),
+    0,
+    Math.PI * 2,
+  );
+  context.fill();
+  context.restore();
 }
 
 function drawMarker(
